@@ -56,7 +56,7 @@ class TomoController extends Controller
     //Obtener todos los tomos
     public function TomosAll()
     {
-        $tomo= tomos::all();
+        $tomo = tomos::all();
         return response()->json([
             'estatus' => 1,
             'data' => $tomo
@@ -65,7 +65,8 @@ class TomoController extends Controller
     }
 
     //Obtener un tomo
-    public function TomoId($id){
+    public function TomoId($id)
+    {
         $tomo = tomos::find($id);
         return response()->json([
             'estatus' => 1,
@@ -74,11 +75,12 @@ class TomoController extends Controller
     }
 
     //Editar tomo
-     //Editar los productos
-     public function update(Request $request, $id){
+    //Editar los productos
+    public function update(Request $request, $id)
+    {
         // Busqueda del producto
         $tomo = tomos::find($id);
-        if(!$tomo){
+        if (!$tomo) {
             return response()->json([
                 'estatus' => 0,
                 'mensaje' => 'Tomo no encontrado'
@@ -109,13 +111,13 @@ class TomoController extends Controller
 
         $tomo->save();
 
-        if($tomo->save()){
+        if ($tomo->save()) {
             return response()->json([
                 'estatus' => 1,
                 'mensaje' => 'Tomo Actualizado'
 
             ]);
-        }else{
+        } else {
             return response()->json([
                 'estatus' => 0,
                 'mensaje' => 'Tomo No Actualizado'
@@ -125,7 +127,8 @@ class TomoController extends Controller
     }
 
     //Eliminar tomo
-    public function delete($id){
+    public function delete($id)
+    {
         $tomo = tomos::find($id);
         //Cambiamos el campo de eliminado y guardamos el cambio
         $tomo->eliminado = true;
@@ -133,7 +136,70 @@ class TomoController extends Controller
         return response()->json([
             'estatus' => 1,
             'mensaje' => 'Tomo Eliminado'
-            ]);
+        ]);
     }
 
+    //Obtener por filtrado
+    public function filter(Request $request)
+    {
+        //Obtenemos los datos para el filtrado
+        $Titulo = $request->query('titulo');
+        $Numero = $request->query('numero_tomo');
+        $Fecha = $request->query('fecha_publicacion');
+
+
+
+        $query = tomos::query();
+
+        // Hacer el filtrado
+        if ($Titulo) {
+            $query->where('titulo', 'like', '%' . $Titulo . '%');
+        }
+        if ($Numero) {
+            $query->where('numero_tomo', $Numero);
+        }
+        if ($Fecha) {
+            $query->where('fecha_publicacion', $Fecha);
+        }
+
+        $resultados = $query->get();
+
+        return response()->json([
+            'estatus' => 1,
+            'data' => $resultados
+
+        ]);
+    }
+
+    //Busqueda con la pregumta
+    public function search(Request $request)
+    {
+        $pregunta = $request->query('pregunta');
+
+        //Verificar que la pregunta no venga vacia
+        if (!$pregunta) {
+            return response()->json([
+                'estatus' => 0,
+                'mensaje' => 'Por favor, introduce la pregunta'
+            ]);
+        }
+
+        //Buscar el tomo de acuerdo a la sinopsis
+        $resultados = tomos::where('sinopsis', 'like', '%' . $pregunta . '%')->get();
+
+        //Validar los resultados
+        if ($resultados->isEmpty()) {
+            return response()->json([
+                'estatus' => 0,
+                'mensaje' => 'No se encontraron resultados'
+            ]);
+        }
+
+        // Retornar los resultados
+        return response()->json([
+            'estatus' => 1,
+            'data' => $resultados,
+            'mensaje' => 'Resultado encontrado'
+        ]);
+    }
 }

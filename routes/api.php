@@ -20,5 +20,10 @@ Route::prefix('tomos')->group(function(){
     Route::delete('/{id}', [TomoController::class, 'delete'])->where('id','[0-9]');
     //Obtener una pelicula
     Route::get('/{id}', [TomoController::class, 'TomoId'])->where('id','[0-9]');
+    //Filtrar los tomos
+    Route::get('/filter', [TomoController::class, 'filter']);
+    //Buscar de acuerdo a la pregunta
+    Route::get('/search', [TomoController::class, 'search']);
 
 });
+
